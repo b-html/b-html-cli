@@ -7,6 +7,9 @@
     "email": "m@bouzuya.net",
     "url": "http://bouzuya.net"
   },
+  "bin": {
+    "b-html": "./bin/b-html"
+  },
   "bugs": {
     "url": "https://github.com/b-html/b-html-cli/issues"
   },
