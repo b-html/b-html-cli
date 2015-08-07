@@ -10,7 +10,7 @@ class CLI
     command = commander('b-html <file>')
     command.version @_getVersion()
     command.action (file) =>
-      @_compile file
+      @_compileRecursive file
     command.execute()
     .catch (e) ->
       console.error e
@@ -24,6 +24,14 @@ class CLI
     base = path.basename srcFile, ext
     dstFile = path.join dir, base + '.html'
     fs.outputFileSync dstFile, html, encoding: 'utf-8'
+
+  _compileRecursive: (srcFile, options) ->
+    if fs.statSync(srcFile).isDirectory()
+      files = fs.readdirSync srcFile
+      files.forEach (f) =>
+        @_compileRecursive path.join(srcFile, f), options
+    else
+      @_compile srcFile, options
 
   _getVersion: ->
     packageJsonFile = path.join __dirname, '/../package.json'
