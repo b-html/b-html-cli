@@ -7,10 +7,12 @@ class CLI
   constructor: ->
 
   run: ->
-    command = commander('b-html <file>')
+    command = commander 'b-html <file>'
     command.version @_getVersion()
-    command.action (file) =>
-      @_compileRecursive file
+    command
+    .option '-o, --output <dir>', 'the output directory for compiled HTML'
+    .action (file, { output } = {}) =>
+      @_compileRecursive file, dir: output
     command.execute()
     .catch (e) ->
       console.error e
