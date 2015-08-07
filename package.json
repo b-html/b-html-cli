@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "b-html": "^0.7.0",
-    "commander-b": "^0.2.2"
+    "commander-b": "^0.2.2",
+    "fs-extra": "^0.23.0"
   },
   "devDependencies": {
     "coffee-script": "^1.9.3",
