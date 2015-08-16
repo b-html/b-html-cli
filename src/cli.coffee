@@ -12,16 +12,25 @@ class CLI
     command
     .option '-o, --output <dir>', 'the output directory for compiled HTML'
     .action (file, { output } = {}) =>
-      @_compileRecursive file, dir: output
+      try
+        @_compileRecursive file, dir: output
+      catch e
+        console.error e.message
     command.execute()
-    .catch (e) ->
-      console.error e
 
   _compile: (srcFile, { dir } = {}) ->
     ext = path.extname srcFile
     return if ext isnt '.bhtml'
     data = fs.readFileSync srcFile, encoding: 'utf-8'
-    html = bHtml data
+    try
+      html = bHtml data
+    catch e
+      throw new Error [
+        path.resolve srcFile
+        e.lineNumber
+        e.columnNumber
+        ' error: ' + e.message
+      ].join ':'
     dir ?= path.dirname srcFile
     base = path.basename srcFile, ext
     dstFile = path.join dir, base + '.html'
