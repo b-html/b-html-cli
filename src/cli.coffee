@@ -16,6 +16,7 @@ class CLI
         @_compileRecursive file, dir: output
       catch e
         console.error e.message
+        throw e
     command.execute()
 
   _compile: (srcFile, { dir } = {}) ->
