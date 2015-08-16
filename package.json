@@ -14,7 +14,7 @@
     "url": "https://github.com/b-html/b-html-cli/issues"
   },
   "dependencies": {
-    "b-html": "^0.7.0",
+    "b-html": "^0.8.0",
     "commander-b": "^0.2.2",
     "fs-extra": "^0.23.0"
   },
