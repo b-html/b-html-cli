@@ -16,15 +16,26 @@ class CLI
     .option '-s, --sgml-line-break', 'ignore line break following a start tag and before an end tag. (for h2b mode)'
     .action (file, { mode, output, sgmlLineBreak } = {}) =>
       mode ?= 'b2h'
-      sgmlLineBreak ?= false
+      dir = output
+      removeWhiteSpace = sgmlLineBreak ? false
       throw new Error('invalid mode') if mode isnt 'b2h' and mode isnt 'h2b'
       try
         if mode is 'b2h'
-          @_compileRecursive file, dir: output
+          if fs.statSync(file).isDirectory()
+            dir ?= file
+            files = fs.readdirSync file
+            files.forEach (f) =>
+              @_compileRecursive path.join(file, f), { dir }
+          else
+            @_compile file, { dir }
         else # mode is 'h2b'
-          @_decompileRecursive file,
-            dir: output
-            removeWhiteSpace: sgmlLineBreak
+          if fs.statSync(file).isDirectory()
+            dir ?= file
+            files = fs.readdirSync file
+            files.forEach (f) =>
+              @_decompileRecursive path.join(file, f), { dir, removeWhiteSpace }
+          else
+            @_decompile file, { dir, removeWhiteSpace }
       catch e
         console.error e.message
         throw e
@@ -48,13 +59,14 @@ class CLI
     dstFile = path.join dir, base + '.html'
     fs.outputFileSync dstFile, html, encoding: 'utf-8'
 
-  _compileRecursive: (srcFile, options) ->
+  _compileRecursive: (srcFile, { dir }) ->
     if fs.statSync(srcFile).isDirectory()
       files = fs.readdirSync srcFile
       files.forEach (f) =>
-        @_compileRecursive path.join(srcFile, f), options
+        @_compileRecursive path.join(srcFile, f),
+          dir: path.join(dir, path.basename(srcFile))
     else
-      @_compile srcFile, options
+      @_compile srcFile, { dir }
 
   _decompile: (srcFile, { dir, removeWhiteSpace } = {}) ->
     ext = path.extname srcFile
@@ -66,13 +78,15 @@ class CLI
     dstFile = path.join dir, base + '.bhtml'
     fs.outputFileSync dstFile, bhtml, encoding: 'utf-8'
 
-  _decompileRecursive: (srcFile, options) ->
+  _decompileRecursive: (srcFile, { dir, removeWhiteSpace }) ->
     if fs.statSync(srcFile).isDirectory()
       files = fs.readdirSync srcFile
       files.forEach (f) =>
-        @_decompileRecursive path.join(srcFile, f), options
+        @_decompileRecursive path.join(srcFile, f),
+          dir: path.join(dir, path.basename(srcFile))
+          removeWhiteSpace: removeWhiteSpace
     else
-      @_decompile srcFile, options
+      @_decompile srcFile, { dir, removeWhiteSpace }
 
   _getVersion: ->
     packageJsonFile = path.join __dirname, '/../package.json'
